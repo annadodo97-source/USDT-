@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USDT Login</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for dark background and mobile view */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000; /* Deep black background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Enforce mobile-like container width */
+        #app-container {
+             /* Ensure it takes full width on small screens but caps like a mobile view */
+            max-width: 420px; 
+            box-shadow: none; 
+        }
+
+        /* --- Custom Styles for the ADVCASH/USDT Login Screen --- */
+        #login-card {
+            background-color: #121212; /* Dark grey background for the form area */
+            color: white;
+            min-height: 100vh; /* Make it feel like a full screen app */
+            padding: 2.5rem 1.5rem; /* Equivalent to p-10/p-6 */
+            border-radius: 0;
+        }
+
+        .advcash-logo {
+            /* Placeholder for the USDT logo/text */
+            color: #38c172; /* Teal/Green color */
+            font-size: 2rem;
+            line-height: 1;
+            font-weight: 900;
+        }
+
+        .advcash-input {
+            /* Input style to match the image: dark background, white text, visible bottom line */
+            background-color: #121212 !important;
+            border: none !important;
+            border-bottom: 1px solid #333333 !important;
+            color: white !important;
+            border-radius: 0 !important;
+            padding-left: 0.25rem !important;
+            transition: border-bottom-color 0.3s;
+        }
+        .advcash-input:focus {
+            border-bottom: 1px solid #38c172 !important;
+            box-shadow: none !important;
+            outline: none;
+        }
+        
+        /* Login Button Style */
+        .advcash-button {
+            background-color: #333333; 
+            color: white;
+            font-weight: normal;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+        }
+        .advcash-button:hover {
+            background-color: #444444;
+        }
+
+        /* --- Dashboard/Modal Styles --- */
+        .portfolio-gradient {
+            background: linear-gradient(135deg, #4F46E5 0%, #A855F7 50%, #EC4899 100%);
+        }
+        #dashboard-card, #send-card, #receive-card {
+            min-height: 100vh; 
+            border-radius: 0;
+            background-color: #0E1029; /* Consistent dark background */
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Input specific to Send/Receive screens */
+        .modal-input {
+            background-color: #181a32;
+            border: 1px solid #2a2f4c;
+            color: white;
+        }
+        .modal-input:focus {
+             border-color: #A855F7;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container" class="w-full mx-auto p-0 transition-all duration-500">
+        
+        <!-- Login Card (Initial View - ADVCASH Style) -->
+        <div id="login-card" class="space-y-8">
+            <!-- USDT Logo/Text Placeholder -->
+            <div class="flex items-center space-x-2 pb-10">
+                <span class="advcash-logo">USDT</span>
+            </div>
+
+            <!-- Login Heading -->
+            <h1 class="text-4xl font-light text-white mb-10">Login</h1> 
+
+            <form id="login-form" class="space-y-8">
+                <div>
+                    <label for="email" class="block text-xs uppercase font-medium text-gray-500 mb-2">Email</label>
+                    <input type="email" id="email" required autocomplete="email" value="tommy@gmail.com"
+                           class="w-full advcash-input">
+                </div>
+
+                <div>
+                    <label for="password" class="block text-xs uppercase font-medium text-gray-500 mb-2">Password</label>
+                    <input type="password" id="password" required autocomplete="current-password" value="tommy123"
+                           class="w-full advcash-input">
+                    
+                    <!-- Forgot Password Link -->
+                    <a href="#" id="forgot-password-link" class="block text-right mt-2 text-sm text-[#38c172] hover:text-[#45e086]">Forgot password?</a>
+                </div>
+
+                <!-- Message Area (hidden, kept for logic) -->
+                <div id="message-box" class="mt-4 p-3 rounded-lg text-sm transition-opacity duration-300 opacity-0" role="alert"></div>
+
+                <button type="submit" id="login-button"
+                        class="advcash-button w-full mt-10 flex justify-center items-center py-3 px-4 rounded-lg text-sm transition duration-150 ease-in-out disabled:opacity-50"
+                        >
+                    <span id="button-text">LOGIN TO ADVCASH</span>
+                    <svg id="loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </form>
+
+            <!-- Register Link -->
+            <div class="pt-6 text-center text-sm text-gray-400">
+                Don't have an account yet? 
+                <a href="#" id="register-link" class="text-[#38c172] hover:text-[#45e086] font-semibold">Register</a>
+            </div>
+        </div>
+
+        <!-- Protected Content (Crypto Dashboard) -->
+        <div id="dashboard-card" class="hidden w-full bg-[#0E1029] text-white overflow-hidden relative">
+            
+            <!-- Top Navigation Bar -->
+            <header class="flex justify-between items-center px-4 pt-6 pb-4 bg-[#0E1029] sticky top-0 z-10">
+                <!-- Profile/Settings Dropdown (Left) -->
+                <div id="profile-settings-button" class="flex items-center space-x-2 p-2 bg-[#181a32] rounded-xl cursor-pointer shadow-lg hover:bg-[#252a4b]">
+                    <div class="h-6 w-6 rounded-full bg-yellow-400 font-bold text-black flex items-center justify-center text-sm">T</div>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <!-- Portfolio Dropdown (Center) -->
+                <div id="portfolio-dropdown-button" class="flex items-center space-x-2 text-sm font-semibold p-2 bg-[#181a32] rounded-xl cursor-pointer shadow-lg hover:bg-[#252a4b]">
+                    <svg class="w-5 h-5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM3 7a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"></path></svg>
+                    <span class="uppercase text-gray-300">Portfolio</span>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+                <!-- Logout/Connect Icon (Right) -->
+                <button id="logout-button-dashboard" class="p-2 bg-[#181a32] rounded-xl text-gray-400 hover:text-red-400 transition shadow-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3v-1m18-7V4a3 3 0 00-3-3h-6"></path></svg>
+                </button>
+            </header>
+            
+            <!-- Main Balance Card -->
+            <div class="portfolio-gradient mx-4 mt-4 p-6 rounded-2xl shadow-2xl text-center">
+                <p class="text-lg text-gray-100/70">Total Balance</p>
+                <!-- Updated Balance -->
+                <p class="text-5xl font-extrabold my-2">$819,397.37 <span class="text-xl font-normal text-gray-100/70">USD</span></p>
+                <div class="flex justify-center space-x-4 mt-6">
+                    <!-- SEND Button -->
+                    <button id="send-button" class="flex-1 flex items-center justify-center space-x-2 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl text-white font-semibold transition shadow-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                        <span>SEND</span>
+                    </button>
+                    <!-- RECEIVE Button -->
+                    <button id="receive-button" class="flex-1 flex items-center justify-center space-x-2 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl text-white font-semibold transition shadow-md">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h14"></path></svg>
+                        <span>RECEIVE</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Asset List Container -->
+            <div class="p-4 space-y-3 pb-24 hide-scrollbar" id="asset-list">
+                
+                <!-- Asset Item: Solana -->
+                <div class="asset-item flex justify-between items-center p-3 bg-[#181a32] rounded-xl hover:bg-[#252a4b] transition cursor-pointer" data-asset="Solana">
+                    <div class="flex items-center space-x-4">
+                        <div class="h-10 w-10 p-1 bg-black rounded-full text-yellow-400 flex items-center justify-center text-2xl">⚡</div>
+                        <div>
+                            <p class="font-semibold">Solana</p>
+                            <p class="text-xs text-gray-400">$119,397.37 <span class="text-green-400 font-bold">+3.14%</span></p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold">73.56291 SOL</p>
+                        <p class="text-xs text-gray-400">$119,397.37</p>
+                    </div>
+                </div>
+
+                <!-- Asset Item: Ethereum -->
+                <div class="asset-item flex justify-between items-center p-3 bg-[#181a32] rounded-xl hover:bg-[#252a4b] transition cursor-pointer" data-asset="Ethereum">
+                    <div class="flex items-center space-x-4">
+                        <div class="h-10 w-10 p-1 bg-white rounded-full text-gray-800 flex items-center justify-center text-2xl">⟠</div>
+                        <div>
+                            <p class="font-semibold">Ethereum</p>
+                            <p class="text-xs text-gray-400">$57,328.00 <span class="text-green-400 font-bold">+32.99%</span></p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold">8.7216 ETH</p>
+                        <p class="text-xs text-gray-400">$500,000.00</p>
+                    </div>
+                </div>
+
+                <!-- Asset Item: Tether USD -->
+                <div class="asset-item flex justify-between items-center p-3 bg-[#181a32] rounded-xl hover:bg-[#252a4b] transition cursor-pointer" data-asset="Tether USD">
+                    <div class="flex items-center space-x-4">
+                        <div class="h-10 w-10 p-1 bg-teal-400 rounded-full text-white flex items-center justify-center text-2xl">₮</div>
+                        <div>
+                            <p class="font-semibold">Tether USD</p>
+                            <p class="text-xs text-gray-400">$150,000.00 <span class="text-green-400 font-bold">+0.08%</span></p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold">13,563.20 USDC</p>
+                        <p class="text-xs text-gray-400">$150,000.00</p>
+                    </div>
+                </div>
+
+                <!-- Asset Item: BNB -->
+                <div class="asset-item flex justify-between items-center p-3 bg-[#181a32] rounded-xl hover:bg-[#252a4b] transition cursor-pointer" data-asset="BNB">
+                    <div class="flex items-center space-x-4">
+                        <div class="h-10 w-10 p-1 bg-yellow-600 rounded-full text-white flex items-center justify-center text-2xl">⟠</div>
+                        <div>
+                            <p class="font-semibold">BNB</p>
+                            <p class="text-xs text-gray-400">$13,570.00 <span class="text-red-400 font-bold">-1.12%</span></p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold">3.68453 BNB</p>
+                        <p class="text-xs text-gray-400">$50,000.00</p>
+                    </div>
+                </div>
+
+                <!-- Add some padding at the bottom to accommodate the fixed nav bar -->
+                <div class="h-24"></div> 
+            </div>
+             <!-- Dashboard Toast Message (New) -->
+            <div id="dashboard-toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 p-3 rounded-xl text-sm bg-indigo-600 text-white z-50 transition-all duration-300 opacity-0 hidden shadow-2xl"></div>
+
+            <!-- Bottom Navigation Bar (Fixed) -->
+            <nav class="fixed bottom-0 w-full max-w-sm h-16 bg-[#181a32] border-t border-[#2a2f4c] flex justify-around items-center z-20">
+                <div class="flex justify-around w-full relative">
+                    <svg id="nav-home" class="w-6 h-6 text-indigo-400 cursor-pointer" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                    <svg id="nav-send-lightning" class="w-6 h-6 text-gray-500 hover:text-indigo-400 transition cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <button id="nav-transfer-center" class="relative -top-4 w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 shadow-xl flex items-center justify-center border-4 border-[#0E1029] hover:opacity-90 transition mx-8">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                    </button>
+                    <svg id="nav-receive-wallet" class="w-6 h-6 text-gray-500 hover:text-indigo-400 transition cursor-pointer" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm18 3H2v9a2 2 0 002 2h16a2 2 0 002-2V7zm-2 4h-2a1 1 0 100 2h2v-2z"></path></svg>
+                    <svg id="nav-profile" class="w-6 h-6 text-gray-500 hover:text-indigo-400 transition cursor-pointer" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                </div>
+            </nav>
+
+        </div>
+
+        <!-- SEND FUNDS Screen (New Modal) -->
+        <div id="send-card" class="hidden w-full text-white min-h-screen p-6 space-y-8">
+            <header class="flex items-center justify-between sticky top-0 bg-[#0E1029] py-4 -mx-6 px-6 z-10">
+                <button id="back-to-dashboard-send" class="text-gray-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <h1 class="text-xl font-semibold">Send Funds</h1>
+                <div class="w-6 h-6"></div> <!-- Spacer -->
+            </header>
+
+            <form id="send-form" class="space-y-6 pt-4">
+                <div>
+                    <label for="asset-select" class="block text-sm font-medium text-gray-400 mb-2">Select Asset</label>
+                    <select id="asset-select" class="w-full p-3 rounded-xl modal-input focus:ring-2 focus:ring-indigo-500">
+                        <option>Ethereum (ETH)</option>
+                        <option>Solana (SOL)</option>
+                        <option>Tether USD (USDC)</option>
+                        <option>BNB</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="recipient-address" class="block text-sm font-medium text-gray-400 mb-2">Recipient Address</label>
+                    <input type="text" id="recipient-address" placeholder="0x..." required
+                           class="w-full p-3 rounded-xl modal-input focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label for="send-amount" class="block text-sm font-medium text-gray-400 mb-2">Amount (USD)</label>
+                    <div class="relative">
+                        <input type="number" id="send-amount" placeholder="0.00" required
+                               class="w-full p-3 rounded-xl modal-input focus:ring-2 focus:ring-indigo-500 pr-12">
+                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">USD</span>
+                    </div>
+                    <p class="text-xs text-right text-gray-500 mt-1">Available: $819,397.37</p>
+                </div>
+
+                <div id="send-message-box" class="mt-4 p-3 rounded-lg text-sm transition-opacity duration-300 opacity-0 hidden" role="alert"></div>
+
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold mt-8 transition duration-150 shadow-lg">
+                    CONFIRM SEND
+                </button>
+            </form>
+        </div>
+
+        <!-- RECEIVE FUNDS Screen (New Modal) -->
+        <div id="receive-card" class="hidden w-full text-white min-h-screen p-6 space-y-8">
+            <header class="flex items-center justify-between sticky top-0 bg-[#0E1029] py-4 -mx-6 px-6 z-10">
+                <button id="back-to-dashboard-receive" class="text-gray-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <h1 class="text-xl font-semibold">Receive Funds</h1>
+                <div class="w-6 h-6"></div> <!-- Spacer -->
+            </header>
+
+            <div class="space-y-6 pt-4 text-center">
+                <p class="text-sm text-gray-400">Scan this QR code or copy the address below to receive BTC.</p>
+                
+                <!-- QR Code Image -->
+                <div class="flex justify-center my-6">
+                    <img src="uploaded:image.png-50aa7f5d-c251-4247-9d98-2d280101b96c" alt="Bitcoin Receive QR Code" class="w-48 h-48 rounded-lg shadow-xl border-4 border-white">
+                </div>
+
+                <!-- Wallet Address Field -->
+                <div class="bg-[#181a32] p-4 rounded-xl border border-[#2a2f4c] text-left">
+                    <p class="text-xs text-gray-400 uppercase mb-1">Your BTC Wallet Address</p>
+                    <p id="wallet-address" class="text-sm font-mono break-all">bc1q2hj48hx4e9v7lqdpj6nst2rew3pmlu0yv05vu3</p>
+                </div>
+
+                <!-- Copy Button -->
+                <button id="copy-address-button" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold transition duration-150 shadow-lg flex items-center justify-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 8h6m-3 0l3-3m-3 3l-3-3"></path></svg>
+                    <span>COPY ADDRESS</span>
+                </button>
+                <div id="copy-message" class="text-green-400 text-sm h-5 opacity-0 transition-opacity"></div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- CONSTANTS AND MOCK DATA ---
+        const MOCK_AUTH_TOKEN = "mock-user-session-" + Math.random().toString(36).substring(2, 15);
+        const AUTH_KEY = 'isAuthenticated';
+        const VALID_EMAIL = 'tommy@gmail.com'; 
+        const VALID_PASSWORD = 'tommy123'; 
+        const LOGIN_DELAY_MS = 1500; // Simulate network latency
+        const WALLET_ADDRESS = 'bc1q2hj48hx4e9v7lqdpj6nst2rew3pmlu0yv05vu3';
+
+        // --- DOM Elements ---
+        // Login/Auth
+        const loginForm = document.getElementById('login-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginButton = document.getElementById('login-button');
+        const buttonText = document.getElementById('button-text');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const messageBox = document.getElementById('message-box');
+        const loginCard = document.getElementById('login-card');
+        
+        // Login Card Links (New)
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        const registerLink = document.getElementById('register-link');
+        
+        // Dashboard
+        const dashboardCard = document.getElementById('dashboard-card');
+        const logoutButtonDashboard = document.getElementById('logout-button-dashboard');
+        const sendButton = document.getElementById('send-button');
+        const receiveButton = document.getElementById('receive-button');
+        const profileSettingsButton = document.getElementById('profile-settings-button');
+        const portfolioDropdownButton = document.getElementById('portfolio-dropdown-button');
+        const assetItems = document.querySelectorAll('.asset-item'); // Selector for list items
+        const dashboardToast = document.getElementById('dashboard-toast');
+
+        // Bottom Navigation (New)
+        const navHome = document.getElementById('nav-home');
+        const navSendLightning = document.getElementById('nav-send-lightning');
+        const navTransferCenter = document.getElementById('nav-transfer-center');
+        const navReceiveWallet = document.getElementById('nav-receive-wallet');
+        const navProfile = document.getElementById('nav-profile');
+
+        // Send Card
+        const sendCard = document.getElementById('send-card');
+        const backToSendButton = document.getElementById('back-to-dashboard-send');
+        const sendForm = document.getElementById('send-form');
+        const sendMessageBox = document.getElementById('send-message-box');
+
+        // Receive Card
+        const receiveCard = document.getElementById('receive-card');
+        const backToReceiveButton = document.getElementById('back-to-dashboard-receive');
+        const walletAddressElement = document.getElementById('wallet-address');
+        const copyAddressButton = document.getElementById('copy-address-button');
+        const copyMessage = document.getElementById('copy-message');
+
+        // --- Utility Functions ---
+
+        /**
+         * Shows a message in the designated box (login screen or modals).
+         */
+        function showMessage(text, type, element = messageBox) {
+            element.textContent = text;
+            element.classList.remove('bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'opacity-0', 'hidden', 'bg-red-900', 'text-red-400', 'bg-green-900', 'text-green-400');
+            element.classList.add('p-3');
+
+            // Apply different styles based on context (login vs modal)
+            if (element === messageBox) {
+                // Login Context (light background message)
+                if (type === 'error') {
+                    element.classList.add('bg-red-100', 'text-red-700');
+                } else if (type === 'success') {
+                    element.classList.add('bg-green-100', 'text-green-700');
+                }
+            } else {
+                 // Modal Context (dark background message)
+                if (type === 'error') {
+                    element.classList.add('bg-red-900', 'text-red-400');
+                } else if (type === 'success') {
+                    element.classList.add('bg-green-900', 'text-green-400');
+                }
+            }
+            // Ensure opacity transition runs
+            setTimeout(() => element.classList.remove('opacity-0', 'hidden'), 10);
+            setTimeout(() => element.classList.add('opacity-100'), 50);
+        }
+
+        /**
+         * Clears the message box.
+         */
+        function hideMessage(element = messageBox) {
+            element.classList.remove('opacity-100');
+            // Hide element fully after transition
+            setTimeout(() => {
+                element.classList.add('opacity-0', 'hidden');
+                element.classList.remove('p-3');
+            }, 300);
+        }
+
+        /**
+         * Toggles the loading state of the button.
+         * @param {boolean} isLoading - True to enable loading state, false otherwise.
+         */
+        function setLoading(isLoading) {
+            loginButton.disabled = isLoading;
+            if (isLoading) {
+                buttonText.textContent = 'VERIFYING...';
+                loadingSpinner.classList.remove('hidden');
+            } else {
+                buttonText.textContent = 'LOGIN TO ADVCASH';
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+        
+        /**
+         * Shows a temporary message (toast) on the dashboard screen. (New)
+         */
+        function showToast(text, duration = 3000) {
+            dashboardToast.textContent = text;
+            dashboardToast.classList.remove('hidden', 'opacity-0');
+            dashboardToast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                dashboardToast.classList.remove('opacity-100');
+                dashboardToast.classList.add('opacity-0');
+            }, duration - 300); // Start fading before duration ends
+
+            setTimeout(() => {
+                dashboardToast.classList.add('hidden');
+            }, duration);
+        }
+        
+        /**
+         * Generic handler for features that don't have a dedicated view. (New)
+         */
+        function handleFeatureClick(e, featureName) {
+             e.preventDefault();
+             showToast(featureName);
+        }
+
+
+        // --- Core Logic ---
+
+        /**
+         * Switches the view between the login form, dashboard, send, and receive screens.
+         * @param {string} viewId - The ID of the view to show ('login', 'dashboard', 'send', 'receive').
+         */
+        function showView(viewId) {
+            // Hide all views first
+            loginCard.classList.add('hidden');
+            dashboardCard.classList.add('hidden');
+            sendCard.classList.add('hidden');
+            receiveCard.classList.add('hidden');
+            dashboardToast.classList.add('hidden', 'opacity-0'); // Hide any active toast
+
+            // Show the requested view
+            switch (viewId) {
+                case 'login':
+                    loginCard.classList.remove('hidden');
+                    break;
+                case 'dashboard':
+                    dashboardCard.classList.remove('hidden');
+                    break;
+                case 'send':
+                    sendCard.classList.remove('hidden');
+                    // Reset Send form state on entry
+                    sendForm.reset();
+                    hideMessage(sendMessageBox);
+                    break;
+                case 'receive':
+                    receiveCard.classList.remove('hidden');
+                    // Ensure the wallet address is set
+                    walletAddressElement.textContent = WALLET_ADDRESS;
+                    copyMessage.classList.add('opacity-0');
+                    break;
+                default:
+                    loginCard.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Checks the authentication status from localStorage on page load.
+         */
+        function checkAuthStatus() {
+            const authStatus = localStorage.getItem(AUTH_KEY);
+            if (authStatus === MOCK_AUTH_TOKEN) {
+                showView('dashboard');
+            } else {
+                showView('login');
+            }
+        }
+
+        /**
+         * Handles the login attempt.
+         * @param {Event} e - The form submission event.
+         */
+        function handleLogin(e) {
+            e.preventDefault();
+            hideMessage();
+            setLoading(true);
+
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            // Simulate network request delay
+            setTimeout(() => {
+                if (email === VALID_EMAIL && password === VALID_PASSWORD) {
+                    localStorage.setItem(AUTH_KEY, MOCK_AUTH_TOKEN);
+                    showMessage('Login successful! Accessing secure area.', 'success');
+                    
+                    setTimeout(() => {
+                        showView('dashboard');
+                        setLoading(false);
+                    }, 500);
+
+                } else {
+                    showMessage('Invalid credentials. Please try again.', 'error');
+                    setLoading(false);
+                }
+            }, LOGIN_DELAY_MS);
+        }
+
+        /**
+         * Handles the logout action.
+         */
+        function handleLogout() {
+            localStorage.removeItem(AUTH_KEY);
+            hideMessage();
+            messageBox.classList.remove('hidden'); 
+            showMessage('You have been securely logged out.', 'error');
+            
+            setTimeout(() => {
+                 showView('login');
+                 hideMessage();
+            }, 500);
+        }
+
+        /**
+         * Handles the Send form submission.
+         * @param {Event} e - The form submission event.
+         */
+        function handleSend(e) {
+            e.preventDefault();
+            hideMessage(sendMessageBox);
+
+            // Basic validation check
+            const amount = parseFloat(document.getElementById('send-amount').value);
+            const recipient = document.getElementById('recipient-address').value.trim();
+            
+            if (recipient.length < 10) { // Very basic address length check
+                showMessage('Please enter a valid recipient address.', 'error', sendMessageBox);
+                return;
+            }
+
+            if (isNaN(amount) || amount <= 0) {
+                 showMessage('Please enter a positive amount.', 'error', sendMessageBox);
+                 return;
+            }
+
+            // Mock success simulation
+            showMessage(`Successfully sent $${amount.toFixed(2)} to ${recipient.substring(0, 6)}...`, 'success', sendMessageBox);
+
+            // Optional: reset form after a short delay
+            setTimeout(() => sendForm.reset(), 1000);
+        }
+
+        /**
+         * Handles copying the wallet address.
+         */
+        function handleCopyAddress() {
+            // Use document.execCommand('copy') as navigator.clipboard.writeText() often fails in iframes
+            const tempInput = document.createElement('textarea');
+            tempInput.value = WALLET_ADDRESS;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            copyMessage.textContent = 'Address copied!';
+            copyMessage.classList.remove('opacity-0');
+            copyMessage.classList.add('opacity-100');
+            
+            setTimeout(() => {
+                copyMessage.classList.remove('opacity-100');
+                copyMessage.classList.add('opacity-0');
+            }, 2000);
+        }
+
+        // --- Event Listeners and Initialization ---
+        
+        loginForm.addEventListener('submit', handleLogin);
+        logoutButtonDashboard.addEventListener('click', handleLogout); 
+        
+        // Login Card Links (New Listeners)
+        forgotPasswordLink.addEventListener('click', (e) => handleFeatureClick(e, "Password reset initiated. Check your email."));
+        registerLink.addEventListener('click', (e) => handleFeatureClick(e, "Starting new user registration flow."));
+
+        // Dashboard Top Buttons (New Listeners)
+        profileSettingsButton.addEventListener('click', (e) => handleFeatureClick(e, "Opening Profile and Security Settings."));
+        portfolioDropdownButton.addEventListener('click', (e) => handleFeatureClick(e, "Changing portfolio currency view."));
+
+        // Dashboard Core Actions
+        sendButton.addEventListener('click', () => showView('send'));
+        receiveButton.addEventListener('click', () => showView('receive'));
+
+        // Dashboard Asset List Items (New Listeners)
+        assetItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const assetName = item.getAttribute('data-asset');
+                showToast(`Opening details and charts for ${assetName}...`);
+            });
+        });
+        
+        // Bottom Navigation Bar Buttons (New Listeners)
+        navHome.addEventListener('click', () => showView('dashboard')); // Home is Dashboard
+        navSendLightning.addEventListener('click', () => showView('send')); // Quick Send/Transfer
+        navTransferCenter.addEventListener('click', () => showView('send')); // Center button acts as Send/Transfer
+        navReceiveWallet.addEventListener('click', () => showView('receive')); // Wallet acts as Receive
+        navProfile.addEventListener('click', (e) => handleFeatureClick(e, "Viewing User Profile and Activity."));
+
+
+        // Send/Receive Back buttons
+        backToSendButton.addEventListener('click', () => showView('dashboard'));
+        backToReceiveButton.addEventListener('click', () => showView('dashboard'));
+        
+        // Send Form Action
+        sendForm.addEventListener('submit', handleSend);
+
+        // Receive Copy Action
+        copyAddressButton.addEventListener('click', handleCopyAddress);
+
+        // Initialize view state
+        checkAuthStatus();
+
+    </script>
+</body>
+</html>
+
